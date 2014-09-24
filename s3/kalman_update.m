@@ -5,6 +5,7 @@ function [new_state, new_covar] = kalman_update(measurement, state, pred_covar, 
     if state ~= 0
         meas_model = (abs(state)+10)/state;
     else
+        warning('Things get broken badly if the state is 0, better luck next time');
         meas_model = 99999999;
     end
     

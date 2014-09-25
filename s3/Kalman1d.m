@@ -34,17 +34,18 @@ for input = moves
     %visualization
     figure(1);
     hold off;
-    plot(state, 0, 'ob');
+    plot(state, 0, 'ob', 'MarkerSize', 10, 'LineWidth', 2);
     hold on;
-    plot(real_state, 0, 'xr');
+    plot(real_state, 0, 'xr', 'MarkerSize', 10, 'LineWidth', 2);
     
     %calculating the deviation
     halfStd = sqrt(cur_covar)/2;
-    plot(state+halfStd, 0.5, 'xg');
-    plot(state-halfStd, 0.5, 'xg');
-    line([state+halfStd, state-halfStd], [0.5, 0.5]);
+    plot(state+halfStd, 0.2, 'xg', 'MarkerSize', 10);
+    plot(state-halfStd, 0.2, 'xg', 'MarkerSize', 10);
+    line([state+halfStd, state-halfStd], [0.2, 0.2], 'LineWidth', 2);
     
     axis([state-2, state+2, -0.2, 0.8]);
+    legend('State', 'Real state', 'standard deviation');
     axis equal;
     grid on;
     

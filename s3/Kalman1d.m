@@ -24,7 +24,7 @@ for input = moves
     disp(['State after prediction: ', num2str(state), ' std: ', num2str(sqrt(cur_covar))]);
     
     %measuring the position
-    measurement = measure(state);
+    measurement = measure(real_state);
     
     [state, cur_covar] = kalman_update(measurement, state, cur_covar, ...
         measurement_var);

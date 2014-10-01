@@ -2,16 +2,13 @@ function [new_state, new_covar] = kalman_update(measurement, state, pred_covar, 
     meas_var)
 
     %what would measurement be given the state?
-    if state ~= 0
-        meas_model = (abs(state)+10)/state;
-    else
-        warning('Things get broken badly if the state is 0, better luck next time');
-        meas_model = 99999999;
-    end
+    meas_model = [1 0
+                  0 1];
+
     
     %difference between the measurement derived from the state
     %and real measurement
-    innov = measurement - state*meas_model;
+    innov = measurement - meas_model*state;
     
     %finding out the innovation covariance
     innov_cov = meas_model*pred_covar*meas_model' + meas_var;

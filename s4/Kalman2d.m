@@ -26,11 +26,10 @@ control = [pi/4, 1, 1];
 
 euclideanDistance = @(p,q) sqrt(sum((p-q).^2));
 steps = 0;
+duration = 0;
 figure;
 
 while ~close_enough
-    steps = steps+1;
-    
     plot(goal(1),goal(2),'yo'); set(gca,'YLim',[-5,15],'XLim',[-5 15]); hold on;
     error_ellipse(cur_covar,state,.95,'style','g');title('current');
     
@@ -68,13 +67,17 @@ while ~close_enough
     %visualization
     error_ellipse(cur_covar,state,.95,'style','b');title('update');pause;
     
+    %update stats
+    steps = steps+1;
+    duration = duration+control(3)+T;
+    
     N = 2; % how sure do we wanna be
     std = sqrt([cur_covar(1) cur_covar(4)]);
     if goal(1) < state(1)+N*std(1) && goal(1) > state(1)-std(1) && ...
             goal(2) < state(2)+N*std(2) && goal(2) > state(2)-std(2) && ...
                 N*std(1) < .3 && N*std(2) < .3
         close_enough = true;
-        fprintf('congratulations, you reached your goal in %i steps\n',steps);
+        fprintf('congratulations, you reached your goal in %i steps\nit took %1.2f timeunits\n',steps,duration);
     else
         clf;
     end

@@ -1,5 +1,6 @@
+clear all; close all; clc;
 
-
+goal = [10; 10]; %goal position to reach
 
 s_1 = 0.1;
 s_2 = 0.2;
@@ -10,7 +11,7 @@ measurement_var = [s_3 0;
                    0 s_3];
 
 mean_pos = [0 0];
-cur_covar = 1e-16*eye(2);
+cur_covar = 1e-1*eye(2);
 
 real_state = mean_pos'; %[x_pos, y_pos, velocity, angle]
 state = mean_pos'; %the actual state of the machine, now only 1d        
@@ -21,25 +22,38 @@ close_enough = false; %ending criteria
 measure = @(x, y) ([x+randn()*s_3; y+randn()*s_3]);
 input_model = @(ang, vt, dt) ([cos(ang)*vt*dt, sin(ang)*vt*dt]');
 
-input = [pi/2, 1, 1];
+control = [pi/4, 1, 1];
 
-% visualization stuff
-x = -5:.1:15;
-y = x;
-[X Y] = meshgrid(x,y);
+euclideanDistance = @(p,q) sqrt(sum((p-q).^2));
+steps = 0;
+figure;
 
 while ~close_enough
-    [state, cur_covar] = kalman_predict(input, state, cur_covar, ...
+    steps = steps+1;
+    
+    plot(goal(1),goal(2),'yo'); set(gca,'YLim',[-5,15],'XLim',[-5 15]); hold on;
+    error_ellipse(cur_covar,state,.95,'style','g');title('current');
+    
+    %prompt = 'input for next move [angle vt dt]: ';
+    %control = input(prompt);
+    distanceToTarget = euclideanDistance(state,goal);
+    control = [sign(goal(1)-state(1))*acos((goal(1)-state(1))/distanceToTarget)...
+               1 ...
+               distanceToTarget];
+    
+    [state, cur_covar] = kalman_predict(control, state, cur_covar, ...
         movement_var, input_model);
     
     %moving the real position
-    real_state = real_state+input_model(input(1), input(2), input(3));
+    real_state = real_state+input_model(control(1), control(2), control(3));
     
     disp(['State after prediction: X:', num2str(state(1)), ...
         ' Y:', num2str(state(2)), ...
         ' std: ', num2str(sqrt(cur_covar(1,1))), ' ', ...
         num2str(sqrt(cur_covar(2,2)))]);
     cur_covar
+    
+    error_ellipse(cur_covar,state,.95,'style','r');title('prediction');% pause;
     
     %measuring the position
     measurement = measure(real_state(1), real_state(2));
@@ -52,12 +66,16 @@ while ~close_enough
     cur_covar
     
     %visualization
-    Z = mvnpdf([X(:) Y(:)],state',cur_covar);
-    Z = reshape(Z,size(X));
-    surf(X,Y,Z);
+    error_ellipse(cur_covar,state,.95,'style','b');title('update');pause;
     
-    pause;
-    
+    N = 2; % how sure do we wanna be
+    if goal(1) < state(1)+N*sqrt(cur_covar(1,1)) && goal(1) > state(1)-N*sqrt(cur_covar(1,1)) && ...
+            goal(2) < state(2)+N*sqrt(cur_covar(2,2)) && goal(2) > state(2)-N*sqrt(cur_covar(2,2))
+        close_enough = true;
+        fprintf('congratulations, you reached your goal in %i steps\n',steps);
+    else
+        clf;
+    end
 end
 
 

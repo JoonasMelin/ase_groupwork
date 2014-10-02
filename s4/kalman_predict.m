@@ -16,8 +16,8 @@ function [new_state, new_covar] = kalman_predict(input, state, old_covar, ...
     
     %covariance was given at the direction of the movement (and
     %perpendicular to it), hence the nonlinear function
-    Q = [cos(angle)*movement_var(1)*time+sin(angle)*movement_var(2)*time, 0;
-        0 ,sin(angle)*movement_var(1)*time+cos(angle)*movement_var(2)*time];
+    Q = [abs(cos(angle)*movement_var(1)*time)+abs(cos(angle)*movement_var(2)*time), 0;
+        0 ,abs(sin(angle)*movement_var(1)*time)+abs(sin(angle)*movement_var(2)*time)];
     
     new_covar = system_model*old_covar*system_model' + Q;
 end

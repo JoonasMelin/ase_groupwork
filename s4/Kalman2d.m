@@ -10,8 +10,7 @@ measurement_var = [s_3 0;
                    0 s_3];
 
 mean_pos = [0 0];
-cur_covar = [0 0;
-             0 0];
+cur_covar = 1e-16*eye(2);
 
 real_state = mean_pos'; %[x_pos, y_pos, velocity, angle]
 state = mean_pos'; %the actual state of the machine, now only 1d        
@@ -22,7 +21,12 @@ close_enough = false; %ending criteria
 measure = @(x, y) ([x+randn()*s_3; y+randn()*s_3]);
 input_model = @(ang, vt, dt) ([cos(ang)*vt*dt, sin(ang)*vt*dt]');
 
-input = [pi/4, 1, 2];
+input = [pi/2, 1, 1];
+
+% visualization stuff
+x = -5:.1:15;
+y = x;
+[X Y] = meshgrid(x,y);
 
 while ~close_enough
     [state, cur_covar] = kalman_predict(input, state, cur_covar, ...
@@ -48,22 +52,9 @@ while ~close_enough
     cur_covar
     
     %visualization
-%     figure(1);
-%     hold off;
-%     plot(state, 0, 'ob', 'MarkerSize', 10, 'LineWidth', 2);
-%     hold on;
-%     plot(real_state, 0, 'xr', 'MarkerSize', 10, 'LineWidth', 2);
-%     
-%     %calculating the deviation
-%     halfStd = sqrt(cur_covar)/2;
-%     plot(state+halfStd, 0.2, 'xg', 'MarkerSize', 10);
-%     plot(state-halfStd, 0.2, 'xg', 'MarkerSize', 10);
-%     line([state+halfStd, state-halfStd], [0.2, 0.2], 'LineWidth', 2);
-%     
-%     axis([state-2, state+2, -0.2, 0.8]);
-%     legend('State', 'Real state', 'standard deviation');
-%     axis equal;
-%     grid on;
+    Z = mvnpdf([X(:) Y(:)],state',cur_covar);
+    Z = reshape(Z,size(X));
+    surf(X,Y,Z);
     
     pause;
     

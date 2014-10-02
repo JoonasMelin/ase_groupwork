@@ -18,6 +18,6 @@ function [new_state, new_covar] = kalman_update(measurement, state, pred_covar, 
     
     %finding the updated state
     new_state = state+k_gain*innov;
-    new_covar = (1-k_gain*meas_model)*pred_covar;
+    new_covar = (eye(2)-k_gain*meas_model)*pred_covar;
 
 end

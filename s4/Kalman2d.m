@@ -11,7 +11,7 @@ measurement_var = [s_3 0;
                    0 s_3];
 
 mean_pos = [0 0];
-cur_covar = 1e-1*eye(2);
+cur_covar = eye(2);
 
 real_state = mean_pos'; %[x_pos, y_pos, velocity, angle]
 state = mean_pos'; %the actual state of the machine, now only 1d        
@@ -69,8 +69,10 @@ while ~close_enough
     error_ellipse(cur_covar,state,.95,'style','b');title('update');pause;
     
     N = 2; % how sure do we wanna be
-    if goal(1) < state(1)+N*sqrt(cur_covar(1,1)) && goal(1) > state(1)-N*sqrt(cur_covar(1,1)) && ...
-            goal(2) < state(2)+N*sqrt(cur_covar(2,2)) && goal(2) > state(2)-N*sqrt(cur_covar(2,2))
+    std = sqrt([cur_covar(1) cur_covar(4)]);
+    if goal(1) < state(1)+N*std(1) && goal(1) > state(1)-std(1) && ...
+            goal(2) < state(2)+N*std(2) && goal(2) > state(2)-std(2) && ...
+                N*std(1) < .3 && N*std(2) < .3
         close_enough = true;
         fprintf('congratulations, you reached your goal in %i steps\n',steps);
     else

@@ -51,8 +51,20 @@ while ~close_enough
    measurement = measure(real_state(1), real_state(2));
    set(vis(2),'XData',measurement(1),'YData',measurement(2));pause(.5);
    
+   cp = cos(control(1)); sp = sin(control(1)); 
+   Rot = [cp -sp; 
+          sp  cp]; % rotation matrix
+
+   p2 = zeros(nParticles,2);
+   for i = 1:nParticles
+       % robot movement error for each particle
+       walking_err = sqrt(control(3))*Rot*[randn*s_1;
+                            randn*s_2];
+       p2(i,:) = walking_err;
+   end
+   
    % move particles
-   p = p + repmat(input_model(control(1),control(2),control(3))',nParticles,1);
+   p = p + repmat(input_model(control(1),control(2),control(3))',nParticles,1)+p2;
    
    % create weights
    for i = 1:nParticles
@@ -88,8 +100,8 @@ while ~close_enough
    stdev = diag(std(p)); % do these tell anything usefull?
    state = mean(p);
    if goal(1) < state(1)+N*stdev(1) && goal(1) > state(1)-stdev(1) && ...
-           goal(2) < state(2)+N*stdev(2) && goal(2) > state(2)-stdev(2) && ...
-               N*stdev(1) < .3 && N*stdev(2) < .3
+           goal(2) < state(2)+N*stdev(4) && goal(2) > state(2)-stdev(4) && ...
+               N*stdev(1) < .3 && N*stdev(4) < .3
        close_enough = true;
        fprintf('congratulations, you reached your goal in %i steps\nit took %1.2f timeunits\n',steps,duration);
    end

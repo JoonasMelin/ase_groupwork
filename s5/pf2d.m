@@ -8,6 +8,7 @@ s_1 = 0.1;
 s_2 = 0.2;
 s_3 = 0.02;
 T = 0.2;
+movementGain = 1; %How brave we are?
 measurement_var = [s_3 0;
                    0 s_3];
 
@@ -40,8 +41,17 @@ figure;
 vis = plot(goal(1),goal(2),'o',inf,inf,'ro',p(:,1),p(:,2),'x');
 
 while ~close_enough
-   prompt = 'input for next move (dt): ';
-   control(3) = input(prompt);
+   %prompt = 'input for next move (dt): ';
+   %control(3) = input(prompt);
+   control(3) = 1/(movementGain*norm(std(p)));
+   
+   %checking if we are closing in on the target
+   targetDist = abs(norm(mean(p)-goal'));
+   if control(3)*control(2) > targetDist
+       disp('Trying to go in too fast');
+       control(3) = targetDist/control(2);
+   end
+   
    control(1) = atan2(goal(2)-state(:,2),goal(1)-state(:,1));
    
    %moving the real position

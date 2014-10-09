@@ -9,6 +9,7 @@ s_1 = 0.1;
 s_2 = 0.2;
 s_3 = 0.02;
 T = 0.2;
+movementGain = 1; %How brave we are?
 %measurement_var = [s_3 0;
 %                   0 s_3];
 
@@ -43,10 +44,18 @@ duration = 0;
 figure;
 vis = plot(goal(1),goal(2),'o',inf,inf,'ro',p(:,1),p(:,2),'x');
 
+
 while ~close_enough
    %prompt = 'input for next move (dt): ';
-   control(3) = rand;%input(prompt);
+   control(3) = 1/(movementGain*norm(std(p)));%input(prompt);
    control(1) = atan2(goal(2)-state(:,2),goal(1)-state(:,1));
+   
+   %checking if we are closing in on the target
+   targetDist = abs(norm(mean(p)-goal'));
+   if control(3)*control(2) > targetDist
+       disp('Trying to go in too fast');
+       control(3) = targetDist/control(2);
+   end
    
    %moving the real position
    real_state = real_state+input_model(control(1), control(2), control(3));
@@ -63,7 +72,7 @@ while ~close_enough
    for i = 1:nParticles
        % robot movement error for each particle
        walking_err = sqrt(control(3))*Rot*[randn*s_1;
-                            randn*s_2];
+                                           randn*s_2];
        p2(i,:) = walking_err;
    end
    
@@ -73,6 +82,7 @@ while ~close_enough
    % create weights
    for i = 1:nParticles
       %w(i) = (measure(p(i,1),p(i,2)) == measurement);
+      %Measurement was white
       if measurement == 1
           if measure(p(i,1),p(i,2)) == measurement
               w(i)=0.95;
@@ -80,6 +90,7 @@ while ~close_enough
               w(i)=0.05;
           end
       end
+      %Measurement was black
       if measurement == 0
           if measure(p(i,1),p(i,2)) == measurement
               w(i)=0.9;
@@ -107,7 +118,7 @@ while ~close_enough
        p3(i,:) = p(index,:);
    end
    p = p3;
-   set(vis(3),'XData',p(:,1),'YData',p(:,2));pause(.5);
+   set(vis(3),'XData',p(:,1),'YData',p(:,2));pause(0.5);
    
    %update stats
    steps = steps+1;

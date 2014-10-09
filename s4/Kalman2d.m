@@ -54,9 +54,9 @@ while ~close_enough
     
     error_ellipse(cur_covar,state,.95,'style','r');title('prediction');% pause;
     
+    
     %measuring the position
     measurement = measure(real_state(1), real_state(2));
-    
     [state, cur_covar] = kalman_update(measurement, state, cur_covar, ...
         measurement_var);
     
@@ -66,6 +66,7 @@ while ~close_enough
     
     %visualization
     error_ellipse(cur_covar,state,.95,'style','b');title('update');pause;
+    
     
     %update stats
     steps = steps+1;

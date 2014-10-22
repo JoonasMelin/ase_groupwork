@@ -1,12 +1,20 @@
 %Initializing the map
-mapWidth = 10;
-mapHeight = 15;
+mapWidth = 5;
+mapHeight = 6;
+
+start = [2,2];
+goal = [6,7];
+
+%Because the edges need to be blocked, add edges
+mapWidth = mapWidth+2;
+mapHeight = mapHeight+2;
 
 %Populating the storage
 map = cell(mapHeight, mapWidth);
 for xCoord = 1:mapWidth
     for yCoord = 1:mapHeight
         curNode = Node(1,xCoord, yCoord, 'node');
+        curNode.blocked = true; %initializing everything as edges
         map{yCoord, xCoord} = curNode;
     end
 end
@@ -28,5 +36,8 @@ for xCoord = 2:mapWidth-1
         right.neighbors = map{yCoord,xCoord+1};
         
         map{yCoord,xCoord}.neighbors = [up, down, left, right];
+        
+        %making this cell valid map cell (unblocking)
+        map{yCoord,xCoord}.blocked = false;
     end
 end

@@ -41,3 +41,18 @@ for xCoord = 2:mapWidth-1
         map{yCoord,xCoord}.blocked = false;
     end
 end
+
+%%
+%Adding obstacles
+obstacles = [3,2;
+             3,3;
+             3,4;
+             3,5;
+             3,6;
+             3,7];
+ for loop = 1:size(obstacles, 1)
+     cx = obstacles(loop,1);
+     cy = obstacles(loop,2);
+     
+     map{cy,cx}.blocked = true;
+ end

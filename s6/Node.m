@@ -20,6 +20,7 @@ classdef Node < handle
                 this.type = type;
                 this.blocked = false;
                 this.gScore = -1;
+                this.orient = orient;
             end
             
             function manhattanDist = getHeuristic(this, goal)

@@ -3,8 +3,9 @@ curOrient = [-1, 0];
 
 curNode.gScore = 0;
 curNode.fScore = curNode.gScore + curNode.getHeuristic(goal);
+openList = 
 
-updateScores(map,curNode, 'S', goal)
+updateScores(map,curNode, 'S', goal, openList)
 
 while curNode.x ~= goal(1) && curNode.y ~=goal(2)
     for

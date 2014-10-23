@@ -1,6 +1,25 @@
 function goalNode = updateScores(map, curNode, curOrient, goal, openList)
+    disp(['Current node: ']);
+    curNode
+    
     %Updating the open list
-    openList(end+1) = curNode.neighbors;
+    openList = [openList, curNode.neighbors{:}];
+    
+    %Pruning blocked nodes from the open list
+    blockInds = [];
+    for loop = 1:length(openList)
+        curOpen = openList(loop);
+        if curOpen.blocked
+            blockInds = [blockInds, loop];
+        end
+    end
+    openList(blockInds) = [];
+    
+    if length(openList) == 0
+        error('Can not reach the goal, no more nodes to open');
+        goalNode = curNode;
+    end
+    
     
     lowestInd = 1;
     lowestOpen = openList(lowestInd);
@@ -11,16 +30,18 @@ function goalNode = updateScores(map, curNode, curOrient, goal, openList)
         
         %checking for a case where we are going straight
         
-        if strcmp(curOrient, curNeighbor.orient)
-            if ~strcmp(curNeighbor.type, 'link')
+        if strcmp(curOrient, curOpen.orient)
+            if ~strcmp(curOpen.type, 'link')
                 warning('Cant deal with multiple outputs on links');
-            end            
-            curOpen.updateScore(curNode.fScore,curNode.gScore);
+            end
+            newG = curNode.gScore;
+            newH = curOpen.getHeuristic(goal);
+            curOpen.updateScore(newH,newG);
         else
             %Not going straight or next node, incrementing G value
             newG = curNode.gScore + 1;
-            newF = curNeighbor.getHeuristic(goal);
-            curOpen.updateScore(newF, newG);                      
+            newH = curOpen.getHeuristic(goal);
+            curOpen.updateScore(newH, newG);                      
         end
         
         %Checking if this is the best from the open list
@@ -32,7 +53,7 @@ function goalNode = updateScores(map, curNode, curOrient, goal, openList)
     end
     
     %checking if we are at goal
-    if curNode.x == goal(1) && curNode.y == goal(2)
+    if curNode.xCoord == goal(1) && curNode.yCoord == goal(2)
         goalNode = curNode;
         return
     end
@@ -45,6 +66,10 @@ function goalNode = updateScores(map, curNode, curOrient, goal, openList)
         curOrient = lowestOpen.orient;
     end
     
+    printMap(map, lowestOpen);
+    pause;
+    
     %Opening the next node
-    updateScores(map,lowestOpen,curOrient,goal, openList);
+    goalNode = updateScores(map,lowestOpen,curOrient,goal, openList);
+    
 end

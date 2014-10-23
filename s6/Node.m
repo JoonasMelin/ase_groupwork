@@ -4,6 +4,7 @@ classdef Node < handle
            neighbors
            gScore
            fScore
+           hScore
            cost
            xCoord
            yCoord
@@ -19,18 +20,20 @@ classdef Node < handle
                 this.yCoord = y;
                 this.type = type;
                 this.blocked = false;
-                this.gScore = -1;
+                this.gScore = inf;
+                this.fScore = inf;
                 this.orient = orient;
             end
             
             function manhattanDist = getHeuristic(this, goal)
-                manhattanDist = this.x-(goal(1)) + this.y-(goal(2));             
+                manhattanDist = abs(this.xCoord-(goal(1))) + abs(this.yCoord-(goal(2)));             
             end
             
-            function updated = updateScore(this, fScore, gScore)
-                if fScore+gScore < this.fScore+this.gScore
-                    this.fScore = fScore;
+            function updated = updateScore(this, heurScore, gScore)
+                if heurScore+gScore < this.fScore
+                    this.fScore = heurScore+gScore;
                     this.gScore = gScore;
+                    this.hScore = heurScore;
                     updated = true;
                 else
                     updated = false;

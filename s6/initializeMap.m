@@ -23,19 +23,19 @@ end
 %Adding neighbors
 for xCoord = 2:mapWidth-1
     for yCoord = 2:mapHeight-1
-        up = Node(xCoord, yCoord, 1, 'link', 'N');
-        up.neighbors = map{yCoord+1,xCoord};
+        up = Node(1, xCoord, yCoord,'link', 'N');
+        up.neighbors = {map{yCoord+1,xCoord}};
         
-        down = Node(xCoord, 0, -1, 'link', 'S');
-        down.neighbors = map{yCoord-1,xCoord};
+        down = Node(1,xCoord, yCoord, 'link', 'S');
+        down.neighbors = {map{yCoord-1,xCoord}};
         
-        left = Node(xCoord, yCoord, 0, 'link', 'W');
-        left.neighbors = map{yCoord,xCoord-1};
+        left = Node(1,xCoord, yCoord, 'link', 'W');
+        left.neighbors = {map{yCoord,xCoord-1}};
         
-        right = Node(xCoord, yCoord, 0, 'link', 'E');
-        right.neighbors = map{yCoord,xCoord+1};
+        right = Node(1,xCoord, yCoord, 'link', 'E');
+        right.neighbors = {map{yCoord,xCoord+1}};
         
-        map{yCoord,xCoord}.neighbors = [up, down, left, right];
+        map{yCoord,xCoord}.neighbors = {up, down, left, right};
         
         %making this cell valid map cell (unblocking)
         map{yCoord,xCoord}.blocked = false;

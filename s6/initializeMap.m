@@ -47,7 +47,7 @@ end
 obstacles = [3,2;
              3,3;
              3,4;
-             3,5;
+             3,4;
              3,6;
              3,7];
  for loop = 1:size(obstacles, 1)

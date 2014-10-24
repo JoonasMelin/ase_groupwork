@@ -10,7 +10,9 @@ classdef Node < handle
            yCoord
            type
            blocked
+           visited
            orient
+           
        end
 
        methods
@@ -23,6 +25,7 @@ classdef Node < handle
                 this.gScore = inf;
                 this.fScore = inf;
                 this.orient = orient;
+                this.visited = false;
             end
             
             function manhattanDist = getHeuristic(this, goal)

@@ -1,6 +1,6 @@
 function goalNode = updateScores(map, curNode, curOrient, goal, openList)
     disp(['Current node: ']);
-    curNode
+    curNode.visited = true;
     
     %Updating the open list
     openList = [openList, curNode.neighbors{:}];
@@ -9,7 +9,7 @@ function goalNode = updateScores(map, curNode, curOrient, goal, openList)
     blockInds = [];
     for loop = 1:length(openList)
         curOpen = openList(loop);
-        if curOpen.blocked
+        if curOpen.blocked || curOpen.visited
             blockInds = [blockInds, loop];
         end
     end

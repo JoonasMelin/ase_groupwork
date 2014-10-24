@@ -49,7 +49,12 @@ obstacles = [3,2;
              3,4;
              3,4;
              3,6;
-             3,7];
+             3,7;
+             5,7;
+             5,6;
+             5,5;
+             5,4;
+             5,3];
  for loop = 1:size(obstacles, 1)
      cx = obstacles(loop,1);
      cy = obstacles(loop,2);

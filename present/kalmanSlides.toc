@@ -1,0 +1,11 @@
+\beamer@endinputifotherversion {3.33pt}
+\beamer@sectionintoc {1}{Motivation}{3}{0}{1}
+\beamer@sectionintoc {2}{Implementation}{4}{0}{2}
+\beamer@subsectionintoc {2}{1}{Prediction}{5}{0}{2}
+\beamer@subsectionintoc {2}{2}{Acceleration update}{7}{0}{2}
+\beamer@subsectionintoc {2}{3}{GPS update}{8}{0}{2}
+\beamer@subsectionintoc {2}{4}{Velocity update}{9}{0}{2}
+\beamer@subsectionintoc {2}{5}{SVO scale update}{10}{0}{2}
+\beamer@subsectionintoc {2}{6}{SVO orientation update}{11}{0}{2}
+\beamer@sectionintoc {3}{Things to do}{12}{0}{3}
+\beamer@sectionintoc {4}{Work organization}{13}{0}{4}

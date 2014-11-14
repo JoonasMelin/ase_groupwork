@@ -1,5 +1,5 @@
 %Initializing the map
-mapWidth = 5;
+mapWidth = 6;
 mapHeight = 6;
 
 start = [2,2];

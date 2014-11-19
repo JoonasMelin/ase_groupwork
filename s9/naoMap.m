@@ -7,11 +7,15 @@ classdef naoMap < handle
         mu
     end
     properties (Access = private)
+        max_obs_dist = 3;
         sigma_t = 0.05;
         d = 10;
         sigma_l = 1;
         sigma_w = 0.05;
-        landmarks = [];
+        sigma_obs = 0.03;
+        landmarks = [1 0;
+                    0 0;
+                    0 2];
     end
     
     methods
@@ -23,8 +27,25 @@ classdef naoMap < handle
             map.num_positions = 1;
             map.num_landmarks = 0;
         end
-        function observe(map, id, rel_crd)
+        function [ids, obs_coords, obs_sigma] = observe(map, nao_pos)
             %observe
+            obs_coords = [];
+            ids = [];
+            for loop = 1:length(map.landmarks)
+                cl = map.landmarks(loop,:);
+                dist = norm(cl-nao_pos);
+                
+                if dist < map.max_obs_dist
+                    %do the observing
+                    obs_id = loop;                    
+                    obs_rel_coord = (cl-nao_pos);
+                    
+                    obs_coords(end+1,:) = obs_rel_coord;
+                    ids(end+1) = obs_id;
+                    obs_sigma(end+1,:) = [map.sigma_obs, map.sigma_obs];                    
+                    
+                end
+            end
         end
         function turn(map,something)
             % turning
@@ -52,5 +73,6 @@ classdef naoMap < handle
             new_pos = [x y];
             new_sigma = [x_s y_s];
         end
+        
     end % methods
 end % classdef

@@ -12,10 +12,12 @@ classdef naoMap < handle
         d = 10;
         sigma_l = 1;
         sigma_w = 0.05;
+        sigma_m = 0.03;
+        landmarks = [];
         sigma_obs = 0.03;
-        landmarks = [1 0;
-                    0 0;
-                    0 2];
+%         landmarks = [1 0;
+%                     0 0;
+%                     0 2];
     end
     
     methods
@@ -26,6 +28,34 @@ classdef naoMap < handle
             
             map.num_positions = 1;
             map.num_landmarks = 0;
+        end
+        function observe_update(map, id, rel_crd)
+            idx = find(map.landmarks==id,1);
+            if isempty(idx)
+                map.landmarks(end+1) = id;
+                
+                X = 3*map.num_positions-2:3*map.num_positions;
+                
+                map.xi(end+1:end+4) = (map.mu + [rel_crd 0])/map.sigma_m;
+                map.xi(X) = map.xi(X) - (map.mu + [rel_crd 0])/map.sigma_m;
+                
+                map.omega(X,X) = map.omega(X,X) + eye(3)/map.sigma_m; % up left corner
+                map.omega(end+1:end+4,end+1:end+4) = eye(3)/map.sigma_m; % low right corner
+                map.omega(X,end-2:end) = -eye(3)/map.sigma_m; % up right corner
+                map.omega(end-2:end,X) = -eye(3)/map.sigma_m; % low left corner
+                return
+            end
+            
+            L = 3*(map.numpositions+idx)-2:3*(map.numpositions+idx);
+            X = 3*map.num_positions-2:3*map.num_positions;
+            
+            map.xi(L) = map.xi(L) + (map.mu + [rel_crd 0])/map.sigma_m;
+            map.xi(X) = map.xi(X) - (map.mu + [rel_crd 0])/map.sigma_m;
+                
+            map.omega(X,X) = map.omega(X,X) + eye(3)/map.sigma_m; % up left corner
+            map.omega(L,L) = map.omega(L,L) + eye(3)/map.sigma_m; % low right corner
+            map.omega(X,L) = map.omega(X,L) - eye(3)/map.sigma_m; % up right corner
+            map.omega(L,X) = map.omega(L,X) - eye(3)/map.sigma_m; % low left corner
         end
         function [ids, obs_coords, obs_sigma] = observe(map, nao_pos)
             %observe
@@ -42,8 +72,7 @@ classdef naoMap < handle
                     
                     obs_coords(end+1,:) = obs_rel_coord;
                     ids(end+1) = obs_id;
-                    obs_sigma(end+1,:) = [map.sigma_obs, map.sigma_obs];                    
-                    
+                    obs_sigma(end+1,:) = [map.sigma_obs, map.sigma_obs];
                 end
             end
         end

@@ -33,29 +33,34 @@ classdef naoMap < handle
             idx = find(map.landmarks==id,1);
             if isempty(idx)
                 map.landmarks(end+1) = id;
+                map.num_landmarks = map.num_landmarks + 1;
                 
                 X = 3*map.num_positions-2:3*map.num_positions;
                 
-                map.xi(end+1:end+4) = (map.mu + [rel_crd 0])/map.sigma_m;
-                map.xi(X) = map.xi(X) - (map.mu + [rel_crd 0])/map.sigma_m;
+                map.xi(end+1:end+3) = (map.mu + [rel_crd;0])/map.sigma_m;
+                map.xi(X) = map.xi(X) - (map.mu + [rel_crd;0])/map.sigma_m;
                 
                 map.omega(X,X) = map.omega(X,X) + eye(3)/map.sigma_m; % up left corner
-                map.omega(end+1:end+4,end+1:end+4) = eye(3)/map.sigma_m; % low right corner
+                map.omega(end+1:end+3,end+1:end+3) = eye(3)/map.sigma_m; % low right corner
                 map.omega(X,end-2:end) = -eye(3)/map.sigma_m; % up right corner
                 map.omega(end-2:end,X) = -eye(3)/map.sigma_m; % low left corner
+                
+                map.estimate_pos();
                 return
             end
             
-            L = 3*(map.numpositions+idx)-2:3*(map.numpositions+idx);
+            L = 3*(map.num_positions+idx)-2:3*(map.num_positions+idx);
             X = 3*map.num_positions-2:3*map.num_positions;
             
-            map.xi(L) = map.xi(L) + (map.mu + [rel_crd 0])/map.sigma_m;
-            map.xi(X) = map.xi(X) - (map.mu + [rel_crd 0])/map.sigma_m;
+            map.xi(L) = map.xi(L) + (map.mu + [rel_crd;0])/map.sigma_m;
+            map.xi(X) = map.xi(X) - (map.mu + [rel_crd;0])/map.sigma_m;
                 
             map.omega(X,X) = map.omega(X,X) + eye(3)/map.sigma_m; % up left corner
             map.omega(L,L) = map.omega(L,L) + eye(3)/map.sigma_m; % low right corner
             map.omega(X,L) = map.omega(X,L) - eye(3)/map.sigma_m; % up right corner
             map.omega(L,X) = map.omega(L,X) - eye(3)/map.sigma_m; % low left corner
+            
+            map.estimate_pos();
         end
         function [ids, obs_coords, obs_sigma] = observe(map, nao_pos)
             %observe

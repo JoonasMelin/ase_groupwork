@@ -1,0 +1,72 @@
+function simulate(map, landmarks, movements, cur_pos, cur_A)
+if ~isset(cur_A)
+    cur_A = 0;
+end
+if ~isset(cur_pos)
+    cur_pos = [0, 0];
+end
+
+for step = 1:size(movements,1)
+    curD = movements(step,2)*map.d;
+    dA = movements(step,1);
+    
+    
+    %Turning
+    [actualA, ang_sigma] = turnModel(map, dA, cur_A);
+    cur_A = actualA; %should the measurement and simulation be separated?
+    
+    %walking
+    [new_pos, new_pos_sigma] = movementModel(map, curD, cur_pos, cur_A);
+    map.walk(map, new_pos, new_pos_sigma, cur_A, ang_sigma);
+    
+    
+    %Observing
+    [ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);
+    for obsNo = 1:size(ids, 1)
+        %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
+        %only one is needed, taking the mean
+        map.observe_update(ids(obsNo), obs_coords(obsNo,:), ...
+            mean(obs_sigma(obsNo, :)));
+        
+    end
+    
+    
+end
+
+end
+
+function [new_a, new_sigma] = turnModel(map, b, cur_a)
+    new_a = b + sqrt((abs(cur_a-b))/(pi/4)); %wtf? this does not make any sense
+    new_sigma = map.sigma_w;
+end
+
+function [new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
+    x = cur_pos(1)+d*cos(cur_a);
+    y = cur_pos(2)+d*sin(cur_a);
+    x_s = cos(cur_a)*map.sigma_l;
+    y_s = sin(cur_a)*map.sigma_l;
+
+    new_pos = [x y];
+    new_sigma = [x_s y_s];
+end
+
+function [ids, obs_coords, obs_sigma] = observe(map, nao_pos, landmarks)
+%observe
+obs_coords = [];
+ids = [];
+for loop = 1:length(landmarks)
+    cl = landmarks(loop,:);
+    dist = norm(cl-nao_pos);
+
+    if dist < map.max_obs_dist
+        %do the observing
+        obs_id = loop;                    
+        obs_rel_coord = (cl-nao_pos);
+
+        obs_coords(end+1,:) = obs_rel_coord;
+        ids(end+1) = obs_id;
+        obs_sigma(end+1,:) = [map.sigma_m, map.sigma_m];
+    end
+end
+
+end

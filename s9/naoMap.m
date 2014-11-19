@@ -11,11 +11,17 @@ classdef naoMap < handle
         d = 10;
         sigma_l = 1;
         sigma_w = 0.05;
+        landmarks = [];
     end
     
     methods
-        function map = naoMap()
-            % initialize
+        function map = naoMap(init_pos)
+            map.omega = eye(3);
+            map.xi(:,1) = init_pos;
+            map.estimate_pos();
+            
+            map.num_positions = 1;
+            map.num_landmarks = 0;
         end
         function observe(map, id, rel_crd)
             %observe

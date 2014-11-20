@@ -6,7 +6,7 @@ classdef naoMap < handle
         xi
         mu
         
-        max_obs_dist = 3;
+        max_obs_dist = 300;
         d = 10;
         sigma_l = 1;
         sigma_w = 0.05;

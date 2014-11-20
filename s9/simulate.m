@@ -10,49 +10,51 @@ for step = 1:size(movements,1)
     curD = movements(step,2)*map.d;
     dA = movements(step,1);
     
-    
     %Turning
     [actualA, ang_sigma] = turnModel(map, dA, cur_A);
     cur_A = actualA; %should the measurement and simulation be separated?
     %map.turn(dA,ang_sigma);
     %walking
-    [d_pos, new_pos_sigma] = movementModel(map, curD, cur_pos, cur_A);
+    [d_pos, new_pos, new_pos_sigma] = movementModel(map, curD, cur_pos, cur_A);
     map.walk([d_pos';dA], [new_pos_sigma';ang_sigma]);
-    
+    cur_pos = new_pos';
     
     %Observing
-    [ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);
+    [ids, obs_coords, obs_sigma] = observe(map, curD, landmarks);
     for obsNo = 1:size(ids, 2)
         %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
         %only one is needed, taking the mean
         map.observe_update(ids(obsNo), [obs_coords(obsNo,:)';-cur_A], ...
             mean(obs_sigma(obsNo, :)));
         
-    end
-    
+    end 
     
 end
 
 end
 
 function [new_a, new_sigma] = turnModel(map, b, cur_a)
-    new_a = b + sqrt((abs(cur_a-b))/(pi/4)); %wtf? this does not make any sense
-    new_sigma = map.sigma_w;
+    new_a = b;
+    new_sigma = map.sigma_w * (sqrt((abs(cur_a-b))/(pi/4)))^(1/2);
+    if new_sigma <= 1e-8
+        new_sigma = 1e-8;
+    end
 end
 
-function [d_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
+function [d_pos, new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
     x = cur_pos(1)+d*cos(cur_a);
     y = cur_pos(2)+d*sin(cur_a);
     x_s = cos(cur_a)*map.sigma_l;
-    if x_s == 0
+    if  x_s <= 1e-8
         x_s = 1e-8;
     end
     y_s = sin(cur_a)*map.sigma_l;
-    if y_s == 0
+    if y_s <= 1e-8
         y_s = 1e-8;
     end
 
     d_pos = [d*cos(cur_a) d*sin(cur_a)];
+    new_pos = [x,y];
     new_sigma = [x_s y_s];
 end
 

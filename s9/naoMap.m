@@ -91,10 +91,14 @@ classdef naoMap < handle
         function visualize(map, cur_pos)
             xPositions = map.mu(1:3:((map.num_positions)*3)-2);
             yPositions = map.mu(2:3:((map.num_positions)*3)-1);
+            xMap = map.mu((((map.num_positions)*3)+1):3:length(map.mu)-2);
+            yMap = map.mu((((map.num_positions)*3)+2):3:end-1);
+            
             figure(1);
             hold on;
             plot(xPositions,yPositions,'xr', 'MarkerSize', 10, 'LineWidth', 2);
-            legend('Real landmarks', 'Mean position');
+            plot(xMap,yMap,'xg', 'MarkerSize', 11, 'LineWidth', 2);
+            legend('Real landmarks', 'Mean position', 'Landmarks on map');
             grid on;
             axis equal;
         end

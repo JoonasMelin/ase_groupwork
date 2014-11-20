@@ -2,9 +2,11 @@ init_pos = [0;0];
 init_a = 0;
 map = naoMap([init_pos;init_a]);
 
-landmarks = [10 0;
-            0 0;
-            0 20];
+landmarks = [10 -10;
+            0 -10;
+            0 20;
+            20 50;
+            -20 70];
         
 figure(1);
 plot(landmarks(:,1),landmarks(:,2),'ob', 'MarkerSize', 10, 'LineWidth', 2);

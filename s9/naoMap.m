@@ -39,8 +39,8 @@ classdef naoMap < handle
                 
                 X = 3*map.num_positions-2:3*map.num_positions;
                 
-                map.xi(end+1:end+3) = (map.mu(X) + [rel_crd;0])/sigma_m;
-                map.xi(X) = map.xi(X) - (map.mu(X) + [rel_crd;0])/sigma_m;
+                map.xi(end+1:end+3) = [rel_crd;0]/sigma_m;
+                map.xi(X) = map.xi(X) - [rel_crd;0]/sigma_m;
                 
                 map.omega(X,X) = map.omega(X,X) + eye(3)/sigma_m; % up left corner
                 map.omega(end+1:end+3,end+1:end+3) = eye(3)/sigma_m; % low right corner
@@ -54,8 +54,8 @@ classdef naoMap < handle
             L = 3*(map.num_positions+idx)-2:3*(map.num_positions+idx);
             X = 3*map.num_positions-2:3*map.num_positions;
             
-            map.xi(L) = map.xi(L) + (map.mu(X) + [rel_crd;0])/sigma_m;
-            map.xi(X) = map.xi(X) - (map.mu(X) + [rel_crd;0])/sigma_m;
+            map.xi(L) = map.xi(L) + [rel_crd;0]/sigma_m;
+            map.xi(X) = map.xi(X) - [rel_crd;0]/sigma_m;
                 
             map.omega(X,X) = map.omega(X,X) + eye(3)/sigma_m; % up left corner
             map.omega(L,L) = map.omega(L,L) + eye(3)/sigma_m; % low right corner

@@ -8,7 +8,7 @@ function simulate(map, landmarks, movements, cur_pos, cur_A)
 
 %Doing the map initialization before we move
 %Observing
-[ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);
+[ids, obs_coords, obs_sigma] = observe(map, cur_pos, cur_A, landmarks);
 for obsNo = 1:size(ids, 2)
     %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
     %only one is needed, taking the mean
@@ -31,7 +31,7 @@ for step = 1:size(movements,1)
     cur_pos = new_pos';
     
     %Observing
-    [ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);
+    [ids, obs_coords, obs_sigma] = observe(map, cur_pos, cur_A, landmarks);
     for obsNo = 1:size(ids, 2)
         %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
         %only one is needed, taking the mean
@@ -74,7 +74,7 @@ function [d_pos, new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
     new_sigma = [x_s y_s];
 end
 
-function [ids, obs_coords, obs_sigma] = observe(map, nao_pos, landmarks)
+function [ids, obs_coords, obs_sigma] = observe(map, nao_pos, orient, landmarks)
 %observe
 obs_sigma = [];
 obs_coords = [];
@@ -82,13 +82,17 @@ ids = [];
 for loop = 1:length(landmarks)
     cl = landmarks(loop,:)';
     dist = norm(cl-nao_pos);
+    obs_rel_coord = (cl-nao_pos);
+    
+    orient_vec_landmark = obs_rel_coord/dist;
+    orient_vec_nao = [cos(orient), sin(orient)];
+    angle_between = acos(dot(orient_vec_landmark,orient_vec_nao));
 
-    if dist < map.max_obs_dist
+    if ((dist < map.max_obs_dist) && ((-pi/3) < angle_between) && (angle_between < (pi/3)))
         %do the observing
-        obs_id = loop;                    
-        obs_rel_coord = (cl-nao_pos);
+        obs_id = loop;    
 
-        obs_coords(end+1,:) = obs_rel_coord;
+        obs_coords(end+1,:) = obs_rel_coord + randn * map.sigma_m;
         ids(end+1) = obs_id;
         obs_sigma(end+1,:) = [map.sigma_m, map.sigma_m];
     end

@@ -48,14 +48,16 @@ end
 end
 
 function [new_a, new_sigma] = turnModel(map, b, cur_a)
-    new_a = b;
+    
     new_sigma = map.sigma_w * (sqrt((abs(cur_a-b))/(pi/4)))^(1/2);
+    new_a = b + rand(1)*new_sigma;
     if new_sigma <= 1e-8
         new_sigma = 1e-8;
     end
 end
 
 function [d_pos, new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
+    d = d+rand(1)*map.sigma_l;
     x = cur_pos(1)+d*cos(cur_a);
     y = cur_pos(2)+d*sin(cur_a);
     x_s = cos(cur_a)*map.sigma_l;

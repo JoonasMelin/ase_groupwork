@@ -70,7 +70,8 @@ classdef naoMap < handle
             newColumns = zeros(size(map.omega,1),3);
             map.omega = insertrows(map.omega.',newColumns.',3*(map.num_positions)).';
             
-            map.xi = insertrows(map.xi,0,[3*(map.num_positions):3*(map.num_positions)+2]);
+            map.xi = insertrows(map.xi,[0, 0, 0]', ...
+                3*(map.num_positions));
             
             X1 = 3*map.num_positions-2:3*map.num_positions;
             map.num_positions = map.num_positions + 1;

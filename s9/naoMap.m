@@ -88,7 +88,7 @@ classdef naoMap < handle
         end
         
         function visualize(map, cur_pos)
-            pretty(map.omega);
+            map.omega
         end
     end % methods
     methods (Access = private)

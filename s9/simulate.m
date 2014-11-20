@@ -6,6 +6,17 @@ function simulate(map, landmarks, movements, cur_pos, cur_A)
 %     cur_pos = [0, 0];
 % end
 
+%Doing the map initialization before we move
+%Observing
+[ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);
+for obsNo = 1:size(ids, 2)
+    %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
+    %only one is needed, taking the mean
+    map.observe_update(ids(obsNo), [obs_coords(obsNo,:)';-cur_A], ...
+        mean(obs_sigma(obsNo, :)));
+
+end
+
 for step = 1:size(movements,1)
     curD = movements(step,2)*map.d;
     dA = movements(step,1);

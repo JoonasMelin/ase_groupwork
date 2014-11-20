@@ -27,7 +27,10 @@ for step = 1:size(movements,1)
         map.observe_update(ids(obsNo), [obs_coords(obsNo,:)';-cur_A], ...
             mean(obs_sigma(obsNo, :)));
         
-    end 
+    end
+    
+    %Visualization
+    map.visualize(cur_pos);
     
 end
 

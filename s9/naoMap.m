@@ -86,6 +86,10 @@ classdef naoMap < handle
             
             map.estimate_pos();
         end
+        
+        function visualize(map, cur_pos)
+            pretty(map.omega);
+        end
     end % methods
     methods (Access = private)
         function estimate_pos(map)

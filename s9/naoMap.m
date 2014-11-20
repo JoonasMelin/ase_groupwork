@@ -39,8 +39,8 @@ classdef naoMap < handle
                 
                 X = 3*map.num_positions-2:3*map.num_positions;
                 
-                map.xi(end+1:end+3) = [rel_crd;0]/sigma_m;
-                map.xi(X) = map.xi(X) - [rel_crd;0]/sigma_m;
+                map.xi(end+1:end+3) = rel_crd/sigma_m;
+                map.xi(X) = map.xi(X) - rel_crd/sigma_m;
                 
                 map.omega(X,X) = map.omega(X,X) + eye(3)/sigma_m; % up left corner
                 map.omega(end+1:end+3,end+1:end+3) = eye(3)/sigma_m; % low right corner
@@ -54,8 +54,8 @@ classdef naoMap < handle
             L = 3*(map.num_positions+idx)-2:3*(map.num_positions+idx);
             X = 3*map.num_positions-2:3*map.num_positions;
             
-            map.xi(L) = map.xi(L) + [rel_crd;0]/sigma_m;
-            map.xi(X) = map.xi(X) - [rel_crd;0]/sigma_m;
+            map.xi(L) = map.xi(L) + rel_crd/sigma_m;
+            map.xi(X) = map.xi(X) - rel_crd/sigma_m;
                 
             map.omega(X,X) = map.omega(X,X) + eye(3)/sigma_m; % up left corner
             map.omega(L,L) = map.omega(L,L) + eye(3)/sigma_m; % low right corner
@@ -64,12 +64,27 @@ classdef naoMap < handle
             
             map.estimate_pos();
         end
-        
-%         function turn(map,something)
-%             % turning
-%         end
-        function walk(map,new_pos, new_pos_sigma, cur_A, ang_sigma)
-            %walking
+        function walk(map,d_pos,sigma_w)
+            newRows = zeros(3,size(map.omega,2));
+            map.omega = insertrows(map.omega,newRows,3*(map.num_positions));
+            newColumns = zeros(size(map.omega,1),3);
+            map.omega = insertrows(map.omega.',newColumns.',3*(map.num_positions)).';
+            
+            map.xi = insertrows(map.xi,0,[3*(map.num_positions):3*(map.num_positions)+2]);
+            
+            X1 = 3*map.num_positions-2:3*map.num_positions;
+            map.num_positions = map.num_positions + 1;
+            X2 = 3*map.num_positions-2:3*map.num_positions;
+            
+            map.xi(X1) = map.xi(X1) - d_pos./sigma_w;
+            map.xi(X2) = map.xi(X2) + d_pos./sigma_w;
+                
+            map.omega(X1,X1) = map.omega(X1,X1) + diag(1./sigma_w); % up left corner
+            map.omega(X2,X2) = map.omega(X2,X2) + diag(1./sigma_w); % low right corner
+            map.omega(X1,X2) = map.omega(X1,X2) - diag(1./sigma_w); % up right corner
+            map.omega(X2,X1) = map.omega(X2,X1) - diag(1./sigma_w); % low left corner
+            
+            map.estimate_pos();
         end
     end % methods
     methods (Access = private)

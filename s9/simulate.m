@@ -28,7 +28,7 @@ for step = 1:size(movements,1)
     %walking
     [d_pos, new_pos, new_pos_sigma] = movementModel(map, curD, cur_pos, cur_A);
     map.walk([d_pos';dA], [new_pos_sigma';ang_sigma]);
-    cur_pos = new_pos'
+    cur_pos = new_pos';
     
     %Observing
     [ids, obs_coords, obs_sigma] = observe(map, cur_pos, landmarks);

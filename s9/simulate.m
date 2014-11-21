@@ -1,10 +1,4 @@
 function simulate(map, landmarks, movements, cur_pos, cur_A)
-% if ~isset(cur_A)
-%     cur_A = 0;
-% end
-% if ~isset(cur_pos)
-%     cur_pos = [0, 0];
-% end
 
 %Doing the map initialization before we move
 %Observing
@@ -16,6 +10,8 @@ for obsNo = 1:size(ids, 2)
         mean(obs_sigma(obsNo, :)));
 
 end
+map.visualize();
+pause;
 
 for step = 1:size(movements,1)
     curD = movements(step,2)*map.d;
@@ -41,10 +37,11 @@ for step = 1:size(movements,1)
     end
     
     %Visualization
-    map.visualize(cur_pos);
+    map.visualize();
+    pause;
     
 end
-
+hold off;
 end
 
 function [new_a, new_sigma] = turnModel(map, b, cur_a)

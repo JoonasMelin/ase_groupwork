@@ -6,20 +6,21 @@ classdef naoMap < handle
         xi
         mu
         
+        robot
+        trail
+        lm
+        old
+        
         max_obs_dist = 300;
         d = 10;
         sigma_l = 1;
         sigma_w = 0.05;
-        sigma_m = 0.03;
+        sigma_m = 3;
         
     end
     properties (Access = private)
-        
         sigma_t = 0.05;
-        
         landmarks = [];
-        
-
     end
     
     methods
@@ -30,6 +31,11 @@ classdef naoMap < handle
             
             map.num_positions = 1;
             map.num_landmarks = 0;
+            
+            map.old = plot(nan,'x','color',[0 0 0]+0.5,'markersize',10,'linewidth',2);
+            map.trail = plot(nan,'xr','markersize',10,'linewidth',2);
+            map.lm = plot(nan,'xg','markersize',10,'linewidth',2);
+            map.robot = plot(nan,nan,'ro',nan,nan,'r','markersize',10,'linewidth',2);
         end
         function observe_update(map, id, rel_crd, sigma_m)
             idx = find(map.landmarks==id,1);
@@ -87,28 +93,54 @@ classdef naoMap < handle
             
             map.estimate_pos();
         end
-        
-        function visualize(map, cur_pos)
-            xPositions = map.mu(1:3:((map.num_positions)*3)-2);
-            yPositions = map.mu(2:3:((map.num_positions)*3)-1);
-            xMap = map.mu((((map.num_positions)*3)+1):3:length(map.mu)-2);
-            yMap = map.mu((((map.num_positions)*3)+2):3:end-1);
-            
-            figure(1);
-            hold on;
-            plot(xPositions,yPositions,'xr', 'MarkerSize', 10, 'LineWidth', 2);
-            plot(xMap,yMap,'xg', 'MarkerSize', 11, 'LineWidth', 2);
-            legend('Real landmarks', 'Mean position', 'Landmarks on map');
-            grid on;
-            axis equal;
+        function visualize(map)
+           map.plot_robot(map.robot);
+           map.plot_trail(map.trail,map.old);
+           map.plot_landmarks(map.lm,map.old);
+           drawnow;
         end
+%         function visualize(map, cur_pos)
+%             xPositions = map.mu(1:3:((map.num_positions)*3)-2);
+%             yPositions = map.mu(2:3:((map.num_positions)*3)-1);
+%             xMap = map.mu((((map.num_positions)*3)+1):3:length(map.mu)-2);
+%             yMap = map.mu((((map.num_positions)*3)+2):3:end-1);
+%             
+%             figure(1);
+%             hold on;
+%             plot(xPositions,yPositions,'xr', 'MarkerSize', 10, 'LineWidth', 2);
+%             plot(xMap,yMap,'xg', 'MarkerSize', 11, 'LineWidth', 2);
+%             legend('Real landmarks', 'Mean position', 'Landmarks on map');
+%             grid on;
+%             axis equal;
+%         end
     end % methods
     methods (Access = private)
         function estimate_pos(map)
             map.mu = map.omega\map.xi;
         end
-        
-   
-        
+        function plot_robot(map,robot)
+            a = 0.02*sum(abs(get(gca,'xlim')));
+            x = map.mu(3*map.num_positions-2);
+            y = map.mu(3*map.num_positions-1);
+            w = map.mu(3*map.num_positions);
+            set(robot(1),'XData',x,'YData',y);
+            set(robot(2),'XData',[x x+a*cos(w)],'YData',[y y+a*sin(w)]);
+        end
+        function plot_trail(map,trail,old)
+            set(old,'XData',[get(old,'XData') get(trail,'XData')],...
+                'YData',[get(old,'YData') get(trail,'YData')]);
+            
+            x = map.mu(1:3:((map.num_positions-1)*3)-2);
+            y = map.mu(2:3:((map.num_positions-1)*3)-1);
+            set(trail,'XData',x,'YData',y);
+        end
+        function plot_landmarks(map,lm,old)
+            set(old,'XData',[get(old,'XData') get(lm,'XData')],...
+                'YData',[get(old,'YData') get(lm,'YData')]);
+            
+            x = map.mu((((map.num_positions)*3)+1):3:length(map.mu)-2);
+            y = map.mu((((map.num_positions)*3)+2):3:end-1);
+            set(lm,'XData',x,'YData',y);
+        end
     end % methods
 end % classdef

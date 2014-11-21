@@ -1,5 +1,6 @@
 function simulate(map, landmarks, movements, cur_pos, cur_A)
-
+real_pos = cur_pos;
+real_A = cur_A;
 %Doing the map initialization before we move
 %Observing
 [ids, obs_coords, obs_sigma] = observe(map, cur_pos, cur_A, landmarks);
@@ -19,15 +20,19 @@ for step = 1:size(movements,1)
     
     %Turning
     [actualA, ang_sigma] = turnModel(map, dA, cur_A);
+    [real_A, ang_sigma] = turnModel(map, dA, real_A);
+    difA = actualA-cur_A;
     cur_A = actualA; %should the measurement and simulation be separated?
     %map.turn(dA,ang_sigma);
     %walking
     [d_pos, new_pos, new_pos_sigma] = movementModel(map, curD, cur_pos, cur_A);
-    map.walk([d_pos';dA], [new_pos_sigma';ang_sigma]);
+    [d_pos_na, real_pos, new_pos_sigma_na] = movementModel(map, curD, real_pos, real_A);
+    map.walk([d_pos';difA], [new_pos_sigma';ang_sigma]);
     cur_pos = new_pos';
+    real_pos_t = real_pos';
     
     %Observing
-    [ids, obs_coords, obs_sigma] = observe(map, cur_pos, cur_A, landmarks);
+    [ids, obs_coords, obs_sigma] = observe(map, real_pos_t, real_A, landmarks);
     for obsNo = 1:size(ids, 2)
         %Obs sigma is 2 dimensional vector for both x asnd y dirs, since
         %only one is needed, taking the mean
@@ -57,6 +62,7 @@ function [d_pos, new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
     d = d+rand(1)*map.sigma_l;
     x = cur_pos(1)+d*cos(cur_a);
     y = cur_pos(2)+d*sin(cur_a);
+
     x_s = cos(cur_a)*map.sigma_l;
     if  x_s <= 1e-8
         x_s = 1e-8;
@@ -68,6 +74,7 @@ function [d_pos, new_pos, new_sigma] = movementModel(map, d, cur_pos, cur_a)
 
     d_pos = [d*cos(cur_a) d*sin(cur_a)];
     new_pos = [x,y];
+
     new_sigma = [x_s y_s];
 end
 
